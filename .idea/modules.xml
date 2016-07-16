@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/RippleImage.iml" filepath="$PROJECT_DIR$/RippleImage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../android-codegenerator-library/src/main/main.iml" filepath="$PROJECT_DIR$/../android-codegenerator-library/src/main/main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../android-codegenerator-library/src/test/resources/results/results.iml" filepath="$PROJECT_DIR$/../android-codegenerator-library/src/test/resources/results/results.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../android-codegenerator-library/src/test/test.iml" filepath="$PROJECT_DIR$/../android-codegenerator-library/src/test/test.iml" />
+    </modules>
+  </component>
+</project>
