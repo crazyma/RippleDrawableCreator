@@ -26,12 +26,19 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <projectService serviceInterface="setting.Settings"
+                    serviceImplementation="setting.Settings"/>
+    <applicationService
+            serviceInterface="setting.TemplateSettings"
+            serviceImplementation="setting.TemplateSettings"/>
+    <applicationConfigurable
+            instance="setting.MainConfigurable"/>
   </extensions>
 
   <actions>
     <!-- Add your actions here -->
-    <action id="CreateImage" class="CreateImage" text="_CreateImage" description="Create Image">
-      <add-to-group group-id="WindowMenu" anchor="first"/>
+    <action id="CreateImage" class="CreateImage" text="CreateImage" description="Create Image">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
     </action>
   </actions>
 

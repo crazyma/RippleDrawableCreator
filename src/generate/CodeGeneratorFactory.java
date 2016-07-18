@@ -29,6 +29,11 @@ public class CodeGeneratorFactory {
 
         @Override
         public String provideTemplateForName(String templateName) {
+//            System.out.println("11 "  + getClass().toString());
+//            System.out.println("22 "  + getClass().getClassLoader().toString());
+//            System.out.println("33 "  + getClass().getClassLoader().getResource(""));
+//            System.out.println("44 "  + getClass().getClassLoader().getResource("/"));
+//            System.out.println("55 " + getClass().getClassLoader().getResource("/resources/Activity_template"));
             URL url = getClass().getClassLoader().getResource(templateName);
             try {
                 return Resources.toString(url, Charset.defaultCharset());
