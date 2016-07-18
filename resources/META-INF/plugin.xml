@@ -37,9 +37,14 @@
 
   <actions>
     <!-- Add your actions here -->
-    <action id="CreateImage" class="CreateImage" text="CreateImage" description="Create Image">
-      <add-to-group group-id="ToolsMenu" anchor="first"/>
+    <!--<action id="CreateImage" class="CreateImage" text="CreateImage" description="Create Image">-->
+      <!--<add-to-group group-id="ToolsMenu" anchor="first"/>-->
+    <!--</action>-->
+
+    <action id="CreateImageDrawable" class="CreateImageDrawable" text="CreateImageDrawable" description="Create Image Drawable">
+      <add-to-group group-id="WindowMenu" anchor="first"/>
     </action>
+
   </actions>
 
 </idea-plugin>
