@@ -3,10 +3,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import form.AndroidSelectorDialog;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import setting.Settings;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,27 +40,31 @@ public class CreateImageDrawable extends AnAction {
             return;
         }
 
-        Application application = ApplicationManager.getApplication();
+        Project project = anActionEvent.getProject();
+        AndroidSelectorDialog dialog = new AndroidSelectorDialog(project, dir);
+        dialog.show();
 
-        application.runWriteAction(() -> {
-            System.out.println("action!");
-            try {
-                generate(dir,"newDrawable.xml");
-                System.out.println("create drawable done");
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ParserConfigurationException e) {
-                e.printStackTrace();
-            } catch (TransformerException e) {
-                e.printStackTrace();
-            }
-        });
+//        Application application = ApplicationManager.getApplication();
+//
+//        application.runWriteAction(() -> {
+//            System.out.println("action!");
+//            try {
+//                generate(dir);
+//                System.out.println("create drawable done");
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            } catch (ParserConfigurationException e) {
+//                e.printStackTrace();
+//            } catch (TransformerException e) {
+//                e.printStackTrace();
+//            }
+//        });
 
     }
 
-    private void generate(VirtualFile dir, String filename) throws IOException, ParserConfigurationException, TransformerException {
+    private void generate(VirtualFile dir) throws IOException, ParserConfigurationException, TransformerException {
         System.out.println("dir to stirng : " + dir.getName());
-        VirtualFile resDir = null;
+        VirtualFile resDir;
         String imageFileName = dir.getName();
         imageFileName = imageFileName.substring(0,imageFileName.indexOf("."));
         String outputDrawableFileName = "ripple_" + imageFileName + ".xml";
