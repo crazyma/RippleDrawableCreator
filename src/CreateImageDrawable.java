@@ -40,9 +40,14 @@ public class CreateImageDrawable extends AnAction {
             return;
         }
 
-        Project project = anActionEvent.getProject();
-        AndroidSelectorDialog dialog = new AndroidSelectorDialog(project, dir);
-        dialog.show();
+        VirtualFile resDir = getResDir(dir);
+
+        if(isSelectedFileValid(dir) && resDir!= null){
+            Project project = anActionEvent.getProject();
+            AndroidSelectorDialog dialog = new AndroidSelectorDialog(project, resDir, dir);
+            dialog.show();
+        }
+
 
 //        Application application = ApplicationManager.getApplication();
 //
@@ -60,6 +65,35 @@ public class CreateImageDrawable extends AnAction {
 //            }
 //        });
 
+    }
+
+    private String getOutputFileName(String selectedFileName){
+        return "ripple_" + selectedFileName + ".xml";
+    }
+
+    private boolean isSelectedFileValid(VirtualFile dir){
+        String regex = ".*((\\.png)|(\\.jpg))|(\\.9.png)$";
+        return dir.getName().matches(regex);
+    }
+
+    private VirtualFile getResDir(VirtualFile dir){
+        VirtualFile resDir;
+        do{
+            resDir = dir.getParent();
+            dir = resDir;
+        }while(resDir.getName().contains("drawable"));
+
+        if(resDir != null && resDir.getName().equals("res"))
+            return resDir;
+        return null;
+    }
+
+    private VirtualFile getDrawableDir(VirtualFile resDir) throws IOException {
+        VirtualFile drawableDir = resDir.findChild(drawableDirStr);
+        if(drawableDir == null)
+            drawableDir = resDir.createChildDirectory(null, drawableDirStr);
+
+        return drawableDir;
     }
 
     private void generate(VirtualFile dir) throws IOException, ParserConfigurationException, TransformerException {

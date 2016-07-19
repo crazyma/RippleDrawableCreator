@@ -35,23 +35,23 @@ public class AndroidSelectorDialog extends DialogWrapper {
     private static final String drawableDir = "drawable";
     private static final String drawableV21Dir = "drawable-v21";
     private static final String valuesColorsXml = "values/colors.xml";
-    private static final String localProps = "local.properties";
-    private static final String platformsRes = "%s/platforms/%s/data/res/values";
     private static final String nsUri = "http://www.w3.org/2000/xmlns/";
     private static final String androidUri = "http://schemas.android.com/apk/res/android";
 
-    private final VirtualFile dir;
     private final Project project;
 
     private JPanel contentPane;
     private JTextField filenameText;
     private JComboBox colorCombo;
+    private VirtualFile resDir,targetImageFile;
+    private String targetImage;
 
-    public AndroidSelectorDialog(@Nullable Project project, VirtualFile dir) {
+    public AndroidSelectorDialog(@Nullable Project project, VirtualFile resDir, VirtualFile targetImageFile) {
         super(project);
 
         this.project = project;
-        this.dir = dir;
+        this.resDir = resDir;
+        this.targetImageFile = targetImageFile;
         setTitle("Android Selector");
         setResizable(false);
         init();
@@ -60,7 +60,8 @@ public class AndroidSelectorDialog extends DialogWrapper {
     @Override
     public void show() {
         try {
-            if (initColors(dir)) {
+            if (initColors(resDir)) {
+                initTargetImageAndOutputFileName();
                 super.show();
             }
         } catch (Exception e) {
@@ -68,11 +69,16 @@ public class AndroidSelectorDialog extends DialogWrapper {
         }
     }
 
+    private void initTargetImageAndOutputFileName(){
+        String name = targetImageFile.getName();
+        targetImage = name.substring(0,name.indexOf("."));
+        filenameText.setText("selected_" + targetImage);
+    }
+
     private boolean initColors(VirtualFile dir) {
         VirtualFile colorsXml = dir.findFileByRelativePath(valuesColorsXml);
         if (colorsXml != null && colorsXml.exists()) {
             HashMap<String, String> cmap = parseColorsXml(colorsXml);
-            HashMap<String, String> andCmap = parseAndroidColorsXml();
 
             if (cmap.isEmpty()) {
                 String title = "Error";
@@ -89,9 +95,6 @@ public class AndroidSelectorDialog extends DialogWrapper {
                     if (color.startsWith("@color/")) {
                         String key = color.replace("@color/", "");
                         color = cmap.get(key);
-                    } else if (color.startsWith("@android:color/")) {
-                        String key = color.replace("@android:color/", "");
-                        color = andCmap.get(key);
                     } else {
                         // not reachable...
                     }
@@ -152,51 +155,6 @@ public class AndroidSelectorDialog extends DialogWrapper {
         return (NodeList) compile.evaluate(doc, XPathConstants.NODESET);
     }
 
-    @NotNull
-    private HashMap<String, String> parseAndroidColorsXml() {
-        HashMap<String, String> map = new HashMap<String, String>();
-        if (project == null) return map;
-        VirtualFile baseDir = project.getBaseDir();
-        VirtualFile prop = baseDir.findFileByRelativePath(localProps);
-        if (prop == null) return map;
-
-        Properties properties = new Properties();
-        try {
-            properties.load(prop.getInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String sdkDir = properties.getProperty("sdk.dir");
-        File file = new File(sdkDir + File.separator + "platforms");
-        if (!file.isDirectory()) return map;
-
-        ArrayList<String> platforms = new ArrayList<String>();
-        Collections.addAll(platforms, file.list());
-        Collections.reverse(platforms);
-        for (int i = 0, size = platforms.size(); i < size; i++) {
-            String platform = platforms.get(i);
-            if (platform.matches("^android-\\d+$")) continue;
-            if (i > 3) break;
-
-            String path = String.format(platformsRes, sdkDir, platform);
-            File[] files = new File(path).listFiles();
-            if (files == null) continue;
-            for (File f : files) {
-                if (f.getName().matches("colors.*\\.xml")) {
-                    try {
-                        FileInputStream stream = new FileInputStream(f);
-                        NodeList colors = getColorNodes(stream);
-                        makeColorMap(colors, map);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-        return map;
-    }
-
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
@@ -218,20 +176,20 @@ public class AndroidSelectorDialog extends DialogWrapper {
     @Override
     protected void doOKAction() {
         String f = filenameText.getText();
-        final String filename = (f.endsWith(".xml") ? f : f + ".xml").trim();
+        final String outputFileName = (f.endsWith(".xml") ? f : f + ".xml").trim();
         final String color = getColorName(colorCombo);
 
-        if (!valid(filename, color)) {
+        if (!valid(outputFileName, color)) {
             String title = "Invalidation";
-            String msg = "color, pressed, pressedV21 must start with `@color/`";
+            String msg = "color start with `@color/`";
             showMessageDialog(title, msg);
             return;
         }
 
-        if (exists(filename)) {
+        if (exists(outputFileName)) {
             String title = "Cannot create files";
             String msg = String.format(Locale.US,
-                    "`%s` already exists", filename);
+                    "`%s` already exists", outputFileName);
             showMessageDialog(title, msg);
             return;
         }
@@ -240,12 +198,12 @@ public class AndroidSelectorDialog extends DialogWrapper {
         app.runWriteAction(new Runnable() {
             @Override
             public void run() {
-//                try {
-//                    createDrawable(filename, color, pressed);
-//                    createDrawableV21(filename, color, pressedV21);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    createDrawable(outputFileName);
+                    createDrawableV21(outputFileName, color);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         super.doOKAction();
@@ -262,7 +220,7 @@ public class AndroidSelectorDialog extends DialogWrapper {
     private boolean exists(String filename) {
         String[] dirs = new String[]{drawableDir, drawableV21Dir};
         for (String d : dirs) {
-            VirtualFile f = dir.findChild(d);
+            VirtualFile f = resDir.findChild(d);
             if (f != null && f.isDirectory()) {
                 VirtualFile dest = f.findChild(filename);
                 if (dest != null && dest.exists()) {
@@ -274,12 +232,10 @@ public class AndroidSelectorDialog extends DialogWrapper {
         return false;
     }
 
-    private void createDrawable(String filename,
-                                String color,
-                                String pressed) throws Exception {
-        VirtualFile child = dir.findChild(drawableDir);
+    private void createDrawable(String filename) throws Exception {
+        VirtualFile child = resDir.findChild(drawableDir);
         if (child == null) {
-            child = dir.createChildDirectory(null, drawableDir);
+            child = resDir.createChildDirectory(null, drawableDir);
         }
 
         VirtualFile newXmlFile = child.findChild(filename);
@@ -297,34 +253,7 @@ public class AndroidSelectorDialog extends DialogWrapper {
         doc.appendChild(root);
 
         Element item = doc.createElement("item");
-        item.setAttribute("android:drawable",
-                "@drawable/abc_list_selector_disabled_holo_light");
-        item.setAttribute("android:state_enabled", "false");
-        item.setAttribute("android:state_focused", "true");
-        item.setAttribute("android:state_pressed", "true");
-        root.appendChild(item);
-
-        item = doc.createElement("item");
-        item.setAttribute("android:drawable",
-                "@drawable/abc_list_selector_disabled_holo_light");
-        item.setAttribute("android:state_enabled", "false");
-        item.setAttribute("android:state_focused", "true");
-        root.appendChild(item);
-
-        item = doc.createElement("item");
-        item.setAttribute("android:drawable", pressed);
-        item.setAttribute("android:state_focused", "true");
-        item.setAttribute("android:state_pressed", "true");
-        root.appendChild(item);
-
-        item = doc.createElement("item");
-        item.setAttribute("android:drawable", pressed);
-        item.setAttribute("android:state_focused", "false");
-        item.setAttribute("android:state_pressed", "true");
-        root.appendChild(item);
-
-        item = doc.createElement("item");
-        item.setAttribute("android:drawable", color);
+        item.setAttribute("android:drawable", "@drawable/" + targetImage);
         root.appendChild(item);
 
         OutputStream os = newXmlFile.getOutputStream(null);
@@ -342,19 +271,18 @@ public class AndroidSelectorDialog extends DialogWrapper {
         out.close();
     }
 
-    private void createDrawableV21(String filename,
-                                   String color,
-                                   String pressed) throws Exception {
-        VirtualFile child = dir.findChild(drawableV21Dir);
+    private void createDrawableV21(String outputFilename,
+                                   String color) throws Exception {
+        VirtualFile child = resDir.findChild(drawableV21Dir);
         if (child == null) {
-            child = dir.createChildDirectory(null, drawableV21Dir);
+            child = resDir.createChildDirectory(null, drawableV21Dir);
         }
 
-        VirtualFile newXmlFile = child.findChild(filename);
+        VirtualFile newXmlFile = child.findChild(outputFilename);
         if (newXmlFile != null && newXmlFile.exists()) {
             newXmlFile.delete(null);
         }
-        newXmlFile = child.createChildData(null, filename);
+        newXmlFile = child.createChildData(null, outputFilename);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -362,11 +290,11 @@ public class AndroidSelectorDialog extends DialogWrapper {
         Document doc = builder.newDocument();
         Element root = doc.createElement("ripple");
         root.setAttributeNS(nsUri, "xmlns:android", androidUri);
-        root.setAttribute("android:color", pressed);
+        root.setAttribute("android:color", color);
         doc.appendChild(root);
 
         Element item = doc.createElement("item");
-        item.setAttribute("android:drawable", color);
+        item.setAttribute("android:drawable", "@drawable/" + targetImage);
         root.appendChild(item);
 
         OutputStream os = newXmlFile.getOutputStream(null);
