@@ -41,8 +41,15 @@
       <!--<add-to-group group-id="ToolsMenu" anchor="first"/>-->
     <!--</action>-->
 
-    <action id="CreateImageDrawable" class="CreateImageDrawable" text="CreateImageDrawable" description="Create Image Drawable">
-      <add-to-group group-id="WindowMenu" anchor="first"/>
+    <!--<action id="CreateImageDrawable" class="CreateImageDrawable" text="CreateImageDrawable" description="Create Image Drawable">-->
+      <!--<add-to-group group-id="ToolsMenu" anchor="first"/>-->
+    <!--</action>-->
+
+    <action id="CreateImageDrawable"
+            class="CreateImageDrawable"
+            text="Create Image Drawable"
+            description="Generate android selector xml files">
+      <add-to-group group-id="NewGroup" anchor="first"/>
     </action>
 
   </actions>

@@ -1,9 +1,12 @@
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.LangDataKeys;
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import setting.Settings;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,59 +24,79 @@ import java.io.StringWriter;
  */
 public class CreateImageDrawable extends AnAction {
 
-    final String drawableDir = "drawable";
+    final String drawableDirStr = "drawable";
     private static final String INDENT_SPACE = "{http://xml.apache.org/xslt}indent-amount";
     private static final String nsUri = "http://www.w3.org/2000/xmlns/";
     private static final String androidUri = "http://schemas.android.com/apk/res/android";
 
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
+        System.out.println("FUCK!");
+
         final VirtualFile dir = anActionEvent.getData(LangDataKeys.VIRTUAL_FILE);
-
-
         if (dir == null) {
+            System.out.println("FUCK!!!!!!!!!!!");
             return;
         }
 
-        try {
-            generate(dir,"newDrawable.xml");
-            System.out.println("create drawable done");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (TransformerException e) {
-            e.printStackTrace();
-        }
+        Application application = ApplicationManager.getApplication();
+
+        application.runWriteAction(() -> {
+            System.out.println("action!");
+            try {
+                generate(dir,"newDrawable.xml");
+                System.out.println("create drawable done");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
+            } catch (TransformerException e) {
+                e.printStackTrace();
+            }
+        });
 
     }
 
     private void generate(VirtualFile dir, String filename) throws IOException, ParserConfigurationException, TransformerException {
-        VirtualFile child = dir.findChild(drawableDir);
-        if(child == null)
-            child = dir.createChildDirectory(null, drawableDir);
+        System.out.println("dir to stirng : " + dir.getName());
+        VirtualFile resDir = null;
+        String imageFileName = dir.getName();
+        imageFileName = imageFileName.substring(0,imageFileName.indexOf("."));
+        String outputDrawableFileName = "ripple_" + imageFileName + ".xml";
 
-        VirtualFile newXmlFile = child.findChild(filename);
+        do{
+            resDir = dir.getParent();
+            dir = resDir;
+        }while(resDir.getName().contains("drawable"));
+
+        if(resDir == null || !resDir.getName().equals("res")){
+            return;
+        }
+
+        VirtualFile drawableDir = resDir.findChild(drawableDirStr);
+        if(drawableDir == null)
+            drawableDir = dir.createChildDirectory(null, drawableDirStr);
+
+
+        VirtualFile newXmlFile = drawableDir.findChild(outputDrawableFileName);
         if (newXmlFile != null && newXmlFile.exists()) {
             newXmlFile.delete(null);
         }
 
-        newXmlFile = child.createChildData(null, filename);
+        newXmlFile = drawableDir.createChildData(null, outputDrawableFileName);
 
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
 
         Document doc = builder.newDocument();
-        Element root = doc.createElement("selector");
+        Element root = doc.createElement("ripple");
         root.setAttributeNS(nsUri, "xmlns:android", androidUri);
+        root.setAttribute("android:color","#777777");
         doc.appendChild(root);
 
         Element item = doc.createElement("item");
         item.setAttribute("android:drawable",
-                "@drawable/abc_list_selector_disabled_holo_light");
-        item.setAttribute("android:state_enabled", "false");
-        item.setAttribute("android:state_focused", "true");
-        item.setAttribute("android:state_pressed", "true");
+                "@drawable/" + imageFileName);
         root.appendChild(item);
 
         OutputStream os = newXmlFile.getOutputStream(null);
