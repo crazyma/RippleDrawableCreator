@@ -1,4 +1,4 @@
-package color;
+package com.crazyma.color;
 
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.Nullable;

@@ -31,10 +31,10 @@
   <actions>
     <!-- Add your actions here -->
 
-    <action id="CreateImageDrawable"
-            class="CreateImageDrawable"
+    <action id="com.crazyma.CreateImageDrawable"
+            class="com.crazyma.CreateImageDrawable"
             text="Create Image Drawable"
-            description="Generate android selector xml files">
+            description="Generate android selector and ripple xml files">
       <add-to-group group-id="NewGroup" anchor="first"/>
     </action>
 

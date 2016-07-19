@@ -1,6 +1,6 @@
-package form;
+package com.crazyma.form;
 
-import color.ColorItemRenderer;
+import com.crazyma.color.ColorItemRenderer;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -203,6 +203,10 @@ public class AndroidSelectorDialog extends DialogWrapper {
                     createDrawableV21(outputFileName, color);
                 } catch (Exception e) {
                     e.printStackTrace();
+                    String title = "Cannot create files";
+                    String msg = String.format(Locale.US,
+                            "Oops! Something goes wrong! >w<");
+                    showMessageDialog(title, msg);
                 }
             }
         });

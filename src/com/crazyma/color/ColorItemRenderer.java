@@ -1,4 +1,4 @@
-package color;
+package com.crazyma.color;
 
 import javax.swing.*;
 import java.awt.*;
