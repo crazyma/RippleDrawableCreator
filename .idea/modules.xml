@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/RippleImage.iml" filepath="$PROJECT_DIR$/RippleImage.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../SproutCycleGenerator/android-codegenerator-library-master/android-codegenerator-library.iml" filepath="$PROJECT_DIR$/../../SproutCycleGenerator/android-codegenerator-library-master/android-codegenerator-library.iml" />
     </modules>
   </component>
 </project>

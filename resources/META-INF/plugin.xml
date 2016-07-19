@@ -1,17 +1,17 @@
 <idea-plugin version="2">
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>com.crazyma.rippleimage</id>
+  <name>Ripple Drawable Generator</name>
   <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <vendor email="david77115@gmail.com" url="https://github.com/crazyma">Crazyma</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      <h1>Ripple Drawable Generator(base on image resource)</h1>
+      <br>
+      This plugin would create xml file of ripple resource which base on the image resource you choose<br>
     ]]></description>
 
   <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+      First Release<br>
     ]]>
   </change-notes>
 
@@ -33,9 +33,10 @@
 
     <action id="com.crazyma.CreateImageDrawable"
             class="com.crazyma.CreateImageDrawable"
-            text="Create Image Drawable"
+            text="Create Ripple Drawable"
             description="Generate android selector and ripple xml files">
-      <add-to-group group-id="NewGroup" anchor="first"/>
+      <add-to-group group-id="NewGroup" anchor="after"
+                    relative-to-action="NewAndroidAssetImage"/>
     </action>
 
   </actions>
