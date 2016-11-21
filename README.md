@@ -4,6 +4,16 @@ This is a plugin of Android studio to create ripple xml file base on your custom
 
 Install
 ===
+> Step 1 : Download RippleImage.zip
+
+> Step 2 : Open Preferences > Plugins, choose `Install plugin from disk`
+
+![](https://i.imgur.com/oRK3d15.png)
+
+
+> Step 3 : Choose RippleImage.zip, then install it
+
+![](https://i.imgur.com/XuaY1xW.png)
 
 How to use
 ===
