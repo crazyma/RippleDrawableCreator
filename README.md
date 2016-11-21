@@ -4,7 +4,9 @@ This is a plugin of Android studio to create ripple xml file base on your custom
 
 Install
 ===
-> Step 1 : Download RippleImage.zip
+> Step 1 : Download Plugin
+
+[RippleImage.zip](./RippleImage.zip)
 
 > Step 2 : Open Preferences > Plugins, choose `Install plugin from disk`
 
